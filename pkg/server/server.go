@@ -73,13 +73,13 @@ func (s *Server) Serve(ctx context.Context) {
 		grpcServer.GracefulStop()
 		close(*s.serverClosedCh)
 		if err := listener.Close(); err != nil {
-			s.logger.Printf("Failed to close %s: %v", address, err)
+			s.logger.Printf("failed to close %s: %v", address, err)
 		}
 	}()
 
 	err = grpcServer.Serve(listener)
 	if err != nil {
-		s.logger.Printf("grpc api-server stopped: %s", err.Error())
+		s.logger.Printf("gRPCs server stopped: %s", err.Error())
 	}
 
 }
