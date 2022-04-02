@@ -34,7 +34,7 @@ Get the `cell` from the Server
 go run cmd/client/main.go get cell foo-cell   
 # connecting to server on 127.0.0.1:8081
 # getting cell...
-# identity:{uuid:"foo-cell"}  status:"online"
+# identity:{uuid:"foo-cell"}  status:"offline"
 ```
 
 Update the `cell` to an `online` `status`:
