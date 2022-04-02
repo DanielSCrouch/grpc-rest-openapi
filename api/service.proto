@@ -1,0 +1,50 @@
+syntax = "proto3";
+option go_package = "./";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+// Orchestrator service
+service OrchestratorService {
+  
+  rpc Status(google.protobuf.Empty) 
+  returns (StatusResponse) {
+   option (google.api.http) = {
+    get: "/status"
+   };
+  }
+
+  rpc GetCell (ResourceIdentifier) returns (Cell) {
+    option (google.api.http) = {
+      get: "/v1/cell/{uuid=*}"
+    };
+  }
+  
+}
+
+// Health check returning time of access
+message StatusResponse {
+ google.protobuf.Timestamp current_time = 1;
+}
+
+// ID of resource mapped to URL path
+message ResourceIdentifier {
+	string uuid = 1;
+}
+
+// Resource Identifier
+message Identity {
+    string Identity = 1;
+}
+
+// Cell Message
+message Cell {
+  Identity Identity = 1;
+  string Status = 2; 
+}
+
+
+
+
+

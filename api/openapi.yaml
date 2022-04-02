@@ -1,0 +1,60 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: 'DMOC API'
+  description: 'An API that allows uses to interact with the DMOC Orchestrator'
+  contact:
+    name: Daniel Crouch
+    url: "http://research.konicaminolta.com"
+    email: daniel.crouch@konicaminolta.co.uk
+servers:
+  - url: "http://127.0.0.1/v1"
+    description: DMOC Development Orchestrator
+paths:
+  /cells:
+    get:
+      description: Obtain a list of registered Cells
+      parameters:
+        - name: bodyLimit
+          in: query
+          description: The ammount of Cells returned
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 20
+            example: 15
+      responses:
+        200:
+          description: Sucessful get of Cell info
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  properties:
+                    id:
+                      type: integer
+                      example: 3
+                    employee name:
+                      type: string
+                      example: cell-123
+    post:
+      description: Registers a new Cell to the Orchestrator
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  example: 3
+                employee name:
+                  type: string
+                  example: cell-123
+      responses:
+        200:
+          description: Successfully registered Cell with the Orchestrator
+          
+                
