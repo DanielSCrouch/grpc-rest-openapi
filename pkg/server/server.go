@@ -52,7 +52,6 @@ func New(serverAddr, serverPort, proxyPort string, logger *log.Logger, apiClosed
 // Serve - Starts gRPC API server running on local host
 // Blocks until context cancelled or fatal error
 func (s *Server) Serve(ctx context.Context) {
-	defer close(*s.serverClosedCh)
 
 	// Set the Server's address and port
 	address := fmt.Sprintf("%s:%s", s.serverAddr, s.serverPort)
@@ -68,6 +67,15 @@ func (s *Server) Serve(ctx context.Context) {
 	grpcServer := grpc.NewServer()
 	reflection.Register(grpcServer)
 	api.RegisterCellServiceServer(grpcServer, s)
+
+	go func() {
+		<-ctx.Done()
+		grpcServer.GracefulStop()
+		close(*s.serverClosedCh)
+		if err := listener.Close(); err != nil {
+			s.logger.Printf("Failed to close %s: %v", address, err)
+		}
+	}()
 
 	err = grpcServer.Serve(listener)
 	if err != nil {
@@ -95,10 +103,22 @@ func (s *Server) ServeReverseProxy(ctx context.Context) {
 		s.logger.Printf("error: %s", address)
 	}
 
+	server := &http.Server{
+		Addr:    address,
+		Handler: mux,
+	}
+
+	go func() {
+		<-ctx.Done()
+		s.logger.Println("Shutting down the http gateway server")
+		if err := server.Shutdown(context.Background()); err != nil {
+			s.logger.Printf("failed to shutdown http gateway server: %v", err)
+		}
+	}()
+
 	// Start HTTP server (and proxy calls to gRPC server endpoint)
-	err = http.ListenAndServe(address, mux)
-	if err != nil {
-		s.logger.Printf("reverse-proxy server stopped: %s", err.Error())
+	if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		s.logger.Printf("failed to listen and serve: %v", err)
 	}
 }
 
