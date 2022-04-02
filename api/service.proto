@@ -1,47 +1,116 @@
 syntax = "proto3";
-option go_package = "./";
+option go_package = "./api;api";
 
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+import "google/api/field_behavior.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
-// Orchestrator service
-service OrchestratorService {
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+	info: {
+		title: "Demo Server API";
+		version: "1.0";
+    description: "An API that allows uses to interact with the Demo Service"
+		contact: {
+			name: "Daniel Crouch";
+			url: "https://github.com/DanielSCrouch/grpc-rest-openapi";
+			email: "d_crouch@outlook.com";
+		};
+  };
+  schemes: HTTP;
+  consumes: "application/json";
+  produces: "application/json";
+	security_definitions: {
+		security: {
+			key: "BasicAuth";
+			value: {
+				type: TYPE_BASIC;
+			}
+		}
+  }
+	security: {
+		security_requirement: {
+			key: "BasicAuth";
+			value: {};
+		}
+	}
+};
+
+// CellService provides the user with access to Cell resources.
+service CellService {
   
   rpc Status(google.protobuf.Empty) 
-  returns (StatusResponse) {
+  returns (ServerHealthResponse) {
    option (google.api.http) = {
-    get: "/status"
+    get: "/health"
    };
   }
 
-  rpc GetCell (ResourceIdentifier) returns (Cell) {
+	// Get a Cell.
+  rpc GetCell (GetCellRequest) returns (Cell) {
     option (google.api.http) = {
-      get: "/v1/cell/{uuid=*}"
+      get: "/v1/cells/{identity.uuid=*}"
     };
   }
+
+	// Create a Cell.
+	rpc CreateCell(CreateCellRequest) returns (Cell) {
+		option (google.api.http) = {
+			post: "/v1/cells"
+			body: "cell"
+		};
+	}
+
+	// Update a Cell.
+	rpc UpdateCell(UpdateCellRequest) returns (Cell) {
+		option (google.api.http) = {
+			patch: "/v1/cells/{identity.uuid=*}"
+			body: "cell"
+		};
+	}
   
 }
 
-// Health check returning time of access
-message StatusResponse {
- google.protobuf.Timestamp current_time = 1;
+// ServerHealthResponse provides status of server and access time.
+message ServerHealthResponse {
+  bool healthy = 1; 
+  google.protobuf.Timestamp current_time = 2;
 }
 
-// ID of resource mapped to URL path
-message ResourceIdentifier {
+// Identifier is the unique ID of the resource.
+message Identifier {
 	string uuid = 1;
 }
 
-// Resource Identifier
-message Identity {
-    string Identity = 1;
+// Cell represents a Robotic Cell.
+message Cell {
+  Identifier identity = 1;
+  string status = 2; 
 }
 
-// Cell Message
-message Cell {
-  Identity Identity = 1;
-  string Status = 2; 
+// GetCellRequest
+message GetCellRequest {
+	Identifier identity = 1 [(google.api.field_behavior) = REQUIRED];
+}
+
+// CreateCellRequest
+message CreateCellRequest {
+	Cell cell = 2 [(google.api.field_behavior) = REQUIRED];
+}
+
+// UpdateCellRequest
+message UpdateCellRequest {
+	Identifier identity = 1 [(google.api.field_behavior) = REQUIRED];
+	Cell cell = 2;
+
+	// The list of fields to be updated.
+	google.protobuf.FieldMask update_mask = 3;
+
+	// If set to true, and the Cell is not found, a new Cell will be created.
+	// In this situation, `update_mask` is ignored.
+	bool allow_missing = 4;
 }
 
 

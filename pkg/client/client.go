@@ -9,6 +9,7 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
 
 type Client struct {
@@ -28,7 +29,7 @@ func New(serverAddr, serverPort string, logger *log.Logger) (client *Client) {
 }
 
 // connect - Returns gRPC client connection between Client and Server
-func (c *Client) connect(ctx context.Context) (connClient *api.OrchestratorServiceClient, close context.CancelFunc, err error) {
+func (c *Client) connect(ctx context.Context) (connClient *api.CellServiceClient, close context.CancelFunc, err error) {
 
 	c.logger.Printf("connecting to server on %s:%s", c.serverAddr, c.serverPort)
 	// Create gRPC client
@@ -42,27 +43,75 @@ func (c *Client) connect(ctx context.Context) (connClient *api.OrchestratorServi
 		return nil, nil, err
 	}
 
-	grpcClient := api.NewOrchestratorServiceClient(grpcConn)
+	grpcClient := api.NewCellServiceClient(grpcConn)
 
 	return &grpcClient, close, nil
 }
 
-// GetCell - Returns Cell matched by ID
-func (c *Client) GetCell(ctx context.Context, uuid *api.IdMessage) (cell *api.Cell, err error) {
+// CreateCell - Calls the Server to create a Cell
+func (c *Client) CreateCell(ctx context.Context, cell *api.Cell) (resp *api.Cell, err error) {
 
-	c.logger.Println("connecting...")
 	connClient, close, err := c.connect(ctx)
 	if err != nil {
 		return nil, err
 	}
 	defer close()
 
-	c.logger.Println("getting cells...")
-
-	cell, err = (*connClient).GetCell(ctx, uuid)
+	c.logger.Println("creating cell...")
+	req := api.CreateCellRequest{Cell: cell}
+	resp, err = (*connClient).CreateCell(ctx, &req)
 	if err != nil {
 		return nil, err
 	}
 
-	return cell, nil
+	return resp, nil
+}
+
+// GetCell - Returns a Cell matched by ID
+func (c *Client) GetCell(ctx context.Context, id *api.Identifier) (cell *api.Cell, err error) {
+
+	connClient, close, err := c.connect(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer close()
+
+	c.logger.Println("getting cell...")
+	resp, err := (*connClient).GetCell(ctx, &api.GetCellRequest{Identity: id})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
+}
+
+// UpdateCellStatus - Updates a Cell's statuus matched by ID
+func (c *Client) UpdateCell(ctx context.Context, id *api.Identifier, status string) (cell *api.Cell, err error) {
+
+	connClient, close, err := c.connect(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer close()
+
+	cell, err = c.GetCell(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	cell.Status = status
+
+	req := &api.UpdateCellRequest{
+		Identity:   id,
+		Cell:       cell,
+		UpdateMask: &fieldmaskpb.FieldMask{Paths: []string{"status"}},
+	}
+
+	c.logger.Println("updating cell...")
+	resp, err := (*connClient).UpdateCell(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp, nil
 }

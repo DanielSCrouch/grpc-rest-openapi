@@ -2,7 +2,7 @@
 // source: service.proto
 
 /*
-Package __ is a reverse proxy.
+Package api is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
@@ -21,6 +21,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 // Suppress "imported and not used" errors
@@ -31,8 +32,30 @@ var _ = runtime.String
 var _ = utilities.NewDoubleArray
 var _ = metadata.Join
 
-func request_OrchestratorService_GetCell_0(ctx context.Context, marshaler runtime.Marshaler, client OrchestratorServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq IdMessage
+func request_CellService_Status_0(ctx context.Context, marshaler runtime.Marshaler, client CellServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq emptypb.Empty
+	var metadata runtime.ServerMetadata
+
+	msg, err := client.Status(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_CellService_Status_0(ctx context.Context, marshaler runtime.Marshaler, server CellServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq emptypb.Empty
+	var metadata runtime.ServerMetadata
+
+	msg, err := server.Status(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+var (
+	filter_CellService_GetCell_0 = &utilities.DoubleArray{Encoding: map[string]int{"identity": 0, "uuid": 1}, Base: []int{1, 1, 1, 0}, Check: []int{0, 1, 2, 3}}
+)
+
+func request_CellService_GetCell_0(ctx context.Context, marshaler runtime.Marshaler, client CellServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetCellRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -42,14 +65,21 @@ func request_OrchestratorService_GetCell_0(ctx context.Context, marshaler runtim
 		_   = err
 	)
 
-	val, ok = pathParams["uuid"]
+	val, ok = pathParams["identity.uuid"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uuid")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity.uuid")
 	}
 
-	protoReq.Uuid, err = runtime.String(val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "identity.uuid", val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uuid", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity.uuid", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CellService_GetCell_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
 	msg, err := client.GetCell(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -57,8 +87,8 @@ func request_OrchestratorService_GetCell_0(ctx context.Context, marshaler runtim
 
 }
 
-func local_request_OrchestratorService_GetCell_0(ctx context.Context, marshaler runtime.Marshaler, server OrchestratorServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq IdMessage
+func local_request_CellService_GetCell_0(ctx context.Context, marshaler runtime.Marshaler, server CellServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetCellRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -68,14 +98,21 @@ func local_request_OrchestratorService_GetCell_0(ctx context.Context, marshaler 
 		_   = err
 	)
 
-	val, ok = pathParams["uuid"]
+	val, ok = pathParams["identity.uuid"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "uuid")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity.uuid")
 	}
 
-	protoReq.Uuid, err = runtime.String(val)
+	err = runtime.PopulateFieldFromPath(&protoReq, "identity.uuid", val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "uuid", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity.uuid", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CellService_GetCell_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
 	msg, err := server.GetCell(ctx, &protoReq)
@@ -83,25 +120,159 @@ func local_request_OrchestratorService_GetCell_0(ctx context.Context, marshaler 
 
 }
 
-// RegisterOrchestratorServiceHandlerServer registers the http handlers for service OrchestratorService to "mux".
-// UnaryRPC     :call OrchestratorServiceServer directly.
-// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterOrchestratorServiceHandlerFromEndpoint instead.
-func RegisterOrchestratorServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server OrchestratorServiceServer) error {
+func request_CellService_CreateCell_0(ctx context.Context, marshaler runtime.Marshaler, client CellServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateCellRequest
+	var metadata runtime.ServerMetadata
 
-	mux.Handle("GET", pattern_OrchestratorService_GetCell_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Cell); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.CreateCell(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_CellService_CreateCell_0(ctx context.Context, marshaler runtime.Marshaler, server CellServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateCellRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Cell); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.CreateCell(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+var (
+	filter_CellService_UpdateCell_0 = &utilities.DoubleArray{Encoding: map[string]int{"cell": 0, "identity": 1, "uuid": 2}, Base: []int{1, 1, 1, 2, 0, 0}, Check: []int{0, 1, 1, 3, 2, 4}}
+)
+
+func request_CellService_UpdateCell_0(ctx context.Context, marshaler runtime.Marshaler, client CellServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateCellRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Cell); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
+		if fieldMask, err := runtime.FieldMaskFromRequestBody(newReader(), protoReq.Cell); err != nil {
+			return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+		} else {
+			protoReq.UpdateMask = fieldMask
+		}
+	}
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["identity.uuid"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity.uuid")
+	}
+
+	err = runtime.PopulateFieldFromPath(&protoReq, "identity.uuid", val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity.uuid", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CellService_UpdateCell_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.UpdateCell(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_CellService_UpdateCell_0(ctx context.Context, marshaler runtime.Marshaler, server CellServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq UpdateCellRequest
+	var metadata runtime.ServerMetadata
+
+	newReader, berr := utilities.IOReaderFactory(req.Body)
+	if berr != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
+	}
+	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq.Cell); err != nil && err != io.EOF {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if protoReq.UpdateMask == nil || len(protoReq.UpdateMask.GetPaths()) == 0 {
+		if fieldMask, err := runtime.FieldMaskFromRequestBody(newReader(), protoReq.Cell); err != nil {
+			return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+		} else {
+			protoReq.UpdateMask = fieldMask
+		}
+	}
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["identity.uuid"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "identity.uuid")
+	}
+
+	err = runtime.PopulateFieldFromPath(&protoReq, "identity.uuid", val)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "identity.uuid", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_CellService_UpdateCell_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.UpdateCell(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+// RegisterCellServiceHandlerServer registers the http handlers for service CellService to "mux".
+// UnaryRPC     :call CellServiceServer directly.
+// StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterCellServiceHandlerFromEndpoint instead.
+func RegisterCellServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server CellServiceServer) error {
+
+	mux.Handle("GET", pattern_CellService_Status_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.OrchestratorService/GetCell", runtime.WithHTTPPathPattern("/v1/cell/{uuid}"))
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.CellService/Status", runtime.WithHTTPPathPattern("/health"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_OrchestratorService_GetCell_0(ctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_CellService_Status_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -109,16 +280,88 @@ func RegisterOrchestratorServiceHandlerServer(ctx context.Context, mux *runtime.
 			return
 		}
 
-		forward_OrchestratorService_GetCell_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_CellService_Status_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_CellService_GetCell_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.CellService/GetCell", runtime.WithHTTPPathPattern("/v1/cells/{identity.uuid=*}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CellService_GetCell_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CellService_GetCell_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_CellService_CreateCell_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.CellService/CreateCell", runtime.WithHTTPPathPattern("/v1/cells"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CellService_CreateCell_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CellService_CreateCell_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("PATCH", pattern_CellService_UpdateCell_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/.CellService/UpdateCell", runtime.WithHTTPPathPattern("/v1/cells/{identity.uuid=*}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_CellService_UpdateCell_0(ctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CellService_UpdateCell_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
 	return nil
 }
 
-// RegisterOrchestratorServiceHandlerFromEndpoint is same as RegisterOrchestratorServiceHandler but
+// RegisterCellServiceHandlerFromEndpoint is same as RegisterCellServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterOrchestratorServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterCellServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -138,40 +381,103 @@ func RegisterOrchestratorServiceHandlerFromEndpoint(ctx context.Context, mux *ru
 		}()
 	}()
 
-	return RegisterOrchestratorServiceHandler(ctx, mux, conn)
+	return RegisterCellServiceHandler(ctx, mux, conn)
 }
 
-// RegisterOrchestratorServiceHandler registers the http handlers for service OrchestratorService to "mux".
+// RegisterCellServiceHandler registers the http handlers for service CellService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterOrchestratorServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterOrchestratorServiceHandlerClient(ctx, mux, NewOrchestratorServiceClient(conn))
+func RegisterCellServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterCellServiceHandlerClient(ctx, mux, NewCellServiceClient(conn))
 }
 
-// RegisterOrchestratorServiceHandlerClient registers the http handlers for service OrchestratorService
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "OrchestratorServiceClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "OrchestratorServiceClient"
+// RegisterCellServiceHandlerClient registers the http handlers for service CellService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "CellServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "CellServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "OrchestratorServiceClient" to call the correct interceptors.
-func RegisterOrchestratorServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client OrchestratorServiceClient) error {
+// "CellServiceClient" to call the correct interceptors.
+func RegisterCellServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client CellServiceClient) error {
 
-	mux.Handle("GET", pattern_OrchestratorService_GetCell_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_CellService_Status_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
-		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/.OrchestratorService/GetCell", runtime.WithHTTPPathPattern("/v1/cell/{uuid}"))
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/.CellService/Status", runtime.WithHTTPPathPattern("/health"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_OrchestratorService_GetCell_0(ctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_CellService_Status_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_OrchestratorService_GetCell_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_CellService_Status_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_CellService_GetCell_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/.CellService/GetCell", runtime.WithHTTPPathPattern("/v1/cells/{identity.uuid=*}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CellService_GetCell_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CellService_GetCell_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_CellService_CreateCell_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/.CellService/CreateCell", runtime.WithHTTPPathPattern("/v1/cells"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CellService_CreateCell_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CellService_CreateCell_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("PATCH", pattern_CellService_UpdateCell_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/.CellService/UpdateCell", runtime.WithHTTPPathPattern("/v1/cells/{identity.uuid=*}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_CellService_UpdateCell_0(ctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_CellService_UpdateCell_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -179,9 +485,21 @@ func RegisterOrchestratorServiceHandlerClient(ctx context.Context, mux *runtime.
 }
 
 var (
-	pattern_OrchestratorService_GetCell_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "cell", "uuid"}, ""))
+	pattern_CellService_Status_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"health"}, ""))
+
+	pattern_CellService_GetCell_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "cells", "identity.uuid"}, ""))
+
+	pattern_CellService_CreateCell_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "cells"}, ""))
+
+	pattern_CellService_UpdateCell_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "cells", "identity.uuid"}, ""))
 )
 
 var (
-	forward_OrchestratorService_GetCell_0 = runtime.ForwardResponseMessage
+	forward_CellService_Status_0 = runtime.ForwardResponseMessage
+
+	forward_CellService_GetCell_0 = runtime.ForwardResponseMessage
+
+	forward_CellService_CreateCell_0 = runtime.ForwardResponseMessage
+
+	forward_CellService_UpdateCell_0 = runtime.ForwardResponseMessage
 )

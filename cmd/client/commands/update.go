@@ -8,11 +8,11 @@ import (
 )
 
 func init() {
-	rootCmd.AddCommand(getCmd)
+	rootCmd.AddCommand(updateCmd)
 }
 
-var getCmd = &cobra.Command{
-	Use:   "get cell <id>",
+var updateCmd = &cobra.Command{
+	Use:   "update cell <id> <status>",
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -22,23 +22,25 @@ var getCmd = &cobra.Command{
 		///////////////////////////////////////////////////////////////////////////////////////////
 
 		// Collect noun (object type) and name
-		if args == nil || len(args) < 2 {
+		if args == nil || len(args) < 3 {
 			cmd.Help()
 			os.Exit(0)
 		}
 
 		objectType := args[0]
-		objectID := args[1]
 
 		if objectType != "cell" {
 			config.logger.Fatalf("error: unknown type \"%s\" for \"dmoc %s\"", objectType, cmd.CalledAs())
 		}
 
-		cell, err := config.client.GetCell(cmd.Context(), &api.Identifier{Uuid: objectID})
+		objectID := args[1]
+		objectStatus := args[2]
+
+		resp, err := config.client.UpdateCell(cmd.Context(), &api.Identifier{Uuid: objectID}, objectStatus)
 		if err != nil {
 			config.logger.Fatalf("error: %s", err.Error())
 		}
 
-		config.logger.Println(cell)
+		config.logger.Println(resp)
 	},
 }

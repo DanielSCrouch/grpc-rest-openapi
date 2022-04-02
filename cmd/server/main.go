@@ -11,6 +11,7 @@ func main() {
 
 	serverClosedCh := make(chan struct{})
 	logger := log.Default()
+	ctx := context.Background()
 
 	//////////////////////////////////////////////////////////////////
 	// Get ENV variables
@@ -26,18 +27,24 @@ func main() {
 	// Set server port
 	serverPort := os.Getenv("SERVER_PORT")
 	if serverPort == "" {
-		serverPort = "8080"
+		serverPort = "8081"
 	}
 	logger.Printf("SERVER_PORT: %s", serverPort)
+
+	// Set proxy server port
+	proxyPort := os.Getenv("PROXY_SERVER_PORT")
+	if proxyPort == "" {
+		proxyPort = "8080"
+	}
+	logger.Printf("PROXY_SERVER_PORT: %s", proxyPort)
 
 	//////////////////////////////////////////////////////////////////
 	// Start gRPC server
 	//////////////////////////////////////////////////////////////////
 
-	server := server.New(serverAddr, serverPort, logger, &serverClosedCh)
-	go server.Serve(context.Background())
-
-	go server.HTTPReverseProxy()
+	server := server.New(serverAddr, serverPort, proxyPort, logger, &serverClosedCh)
+	go server.Serve(ctx)
+	go server.ServeReverseProxy(ctx)
 
 	//////////////////////////////////////////////////////////////////
 	// Check for fatal errors

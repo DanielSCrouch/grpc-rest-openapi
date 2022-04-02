@@ -3,6 +3,6 @@ package testdata
 import "demoserver/api"
 
 var TestCell = api.Cell{
-	Identity: &api.Identity{Identity: "foo-cell"},
+	Identity: &api.Identifier{Uuid: "foo-cell"},
 	Status:   "foo-status",
 }

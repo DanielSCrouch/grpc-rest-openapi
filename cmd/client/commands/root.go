@@ -25,7 +25,7 @@ type Config struct {
 
 const (
 	defaultAddr = "127.0.0.1"
-	defaultPort = "8080"
+	defaultPort = "8081"
 )
 
 var (

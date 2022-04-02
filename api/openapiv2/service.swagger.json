@@ -1,13 +1,22 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "service.proto",
-    "version": "version not set"
+    "title": "Demo Server API",
+    "description": "An API that allows uses to interact with the Demo Service",
+    "version": "1.0",
+    "contact": {
+      "name": "Daniel Crouch",
+      "url": "https://github.com/DanielSCrouch/grpc-rest-openapi",
+      "email": "d_crouch@outlook.com"
+    }
   },
   "tags": [
     {
-      "name": "OrchestratorService"
+      "name": "CellService"
     }
+  ],
+  "schemes": [
+    "http"
   ],
   "consumes": [
     "application/json"
@@ -16,9 +25,32 @@
     "application/json"
   ],
   "paths": {
-    "/v1/cell/{uuid}": {
+    "/health": {
       "get": {
-        "operationId": "OrchestratorService_GetCell",
+        "operationId": "CellService_Status",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/ServerHealthResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "CellService"
+        ]
+      }
+    },
+    "/v1/cells": {
+      "post": {
+        "summary": "Create a Cell.",
+        "operationId": "CellService_CreateCell",
         "responses": {
           "200": {
             "description": "A successful response.",
@@ -35,7 +67,40 @@
         },
         "parameters": [
           {
-            "name": "uuid",
+            "name": "cell",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Cell"
+            }
+          }
+        ],
+        "tags": [
+          "CellService"
+        ]
+      }
+    },
+    "/v1/cells/{identity.uuid}": {
+      "get": {
+        "summary": "Get a Cell.",
+        "operationId": "CellService_GetCell",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/Cell"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "identity.uuid",
             "in": "path",
             "required": true,
             "type": "string",
@@ -43,7 +108,59 @@
           }
         ],
         "tags": [
-          "OrchestratorService"
+          "CellService"
+        ]
+      },
+      "patch": {
+        "summary": "Update a Cell.",
+        "operationId": "CellService_UpdateCell",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/Cell"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "identity.uuid",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "pattern": "[^/]+"
+          },
+          {
+            "name": "cell",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Cell"
+            }
+          },
+          {
+            "name": "updateMask",
+            "description": "The list of fields to be updated.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "allowMissing",
+            "description": "If set to true, and the Cell is not found, a new Cell will be created.\nIn this situation, `update_mask` is ignored.",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "CellService"
         ]
       }
     }
@@ -52,23 +169,36 @@
     "Cell": {
       "type": "object",
       "properties": {
-        "Identity": {
-          "$ref": "#/definitions/Identity"
+        "identity": {
+          "$ref": "#/definitions/Identifier"
         },
-        "Status": {
+        "status": {
           "type": "string"
         }
       },
-      "title": "Cell Message"
+      "description": "Cell represents a Robotic Cell."
     },
-    "Identity": {
+    "Identifier": {
       "type": "object",
       "properties": {
-        "Identity": {
+        "uuid": {
           "type": "string"
         }
       },
-      "title": "Resource Identifier"
+      "description": "Identifier is the unique ID of the resource."
+    },
+    "ServerHealthResponse": {
+      "type": "object",
+      "properties": {
+        "healthy": {
+          "type": "boolean"
+        },
+        "currentTime": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "ServerHealthResponse provides status of server and access time."
     },
     "protobufAny": {
       "type": "object",
@@ -97,5 +227,15 @@
         }
       }
     }
-  }
+  },
+  "securityDefinitions": {
+    "BasicAuth": {
+      "type": "basic"
+    }
+  },
+  "security": [
+    {
+      "BasicAuth": []
+    }
+  ]
 }

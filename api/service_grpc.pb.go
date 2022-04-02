@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -18,86 +19,200 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// OrchestratorServiceClient is the client API for OrchestratorService service.
+// CellServiceClient is the client API for CellService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type OrchestratorServiceClient interface {
-	GetCell(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*Cell, error)
+type CellServiceClient interface {
+	Status(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ServerHealthResponse, error)
+	// Get a Cell.
+	GetCell(ctx context.Context, in *GetCellRequest, opts ...grpc.CallOption) (*Cell, error)
+	// Create a Cell.
+	CreateCell(ctx context.Context, in *CreateCellRequest, opts ...grpc.CallOption) (*Cell, error)
+	// Update a Cell.
+	UpdateCell(ctx context.Context, in *UpdateCellRequest, opts ...grpc.CallOption) (*Cell, error)
 }
 
-type orchestratorServiceClient struct {
+type cellServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewOrchestratorServiceClient(cc grpc.ClientConnInterface) OrchestratorServiceClient {
-	return &orchestratorServiceClient{cc}
+func NewCellServiceClient(cc grpc.ClientConnInterface) CellServiceClient {
+	return &cellServiceClient{cc}
 }
 
-func (c *orchestratorServiceClient) GetCell(ctx context.Context, in *IdMessage, opts ...grpc.CallOption) (*Cell, error) {
-	out := new(Cell)
-	err := c.cc.Invoke(ctx, "/OrchestratorService/GetCell", in, out, opts...)
+func (c *cellServiceClient) Status(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ServerHealthResponse, error) {
+	out := new(ServerHealthResponse)
+	err := c.cc.Invoke(ctx, "/CellService/Status", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// OrchestratorServiceServer is the server API for OrchestratorService service.
-// All implementations must embed UnimplementedOrchestratorServiceServer
+func (c *cellServiceClient) GetCell(ctx context.Context, in *GetCellRequest, opts ...grpc.CallOption) (*Cell, error) {
+	out := new(Cell)
+	err := c.cc.Invoke(ctx, "/CellService/GetCell", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cellServiceClient) CreateCell(ctx context.Context, in *CreateCellRequest, opts ...grpc.CallOption) (*Cell, error) {
+	out := new(Cell)
+	err := c.cc.Invoke(ctx, "/CellService/CreateCell", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cellServiceClient) UpdateCell(ctx context.Context, in *UpdateCellRequest, opts ...grpc.CallOption) (*Cell, error) {
+	out := new(Cell)
+	err := c.cc.Invoke(ctx, "/CellService/UpdateCell", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// CellServiceServer is the server API for CellService service.
+// All implementations must embed UnimplementedCellServiceServer
 // for forward compatibility
-type OrchestratorServiceServer interface {
-	GetCell(context.Context, *IdMessage) (*Cell, error)
-	mustEmbedUnimplementedOrchestratorServiceServer()
+type CellServiceServer interface {
+	Status(context.Context, *emptypb.Empty) (*ServerHealthResponse, error)
+	// Get a Cell.
+	GetCell(context.Context, *GetCellRequest) (*Cell, error)
+	// Create a Cell.
+	CreateCell(context.Context, *CreateCellRequest) (*Cell, error)
+	// Update a Cell.
+	UpdateCell(context.Context, *UpdateCellRequest) (*Cell, error)
+	mustEmbedUnimplementedCellServiceServer()
 }
 
-// UnimplementedOrchestratorServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedOrchestratorServiceServer struct {
+// UnimplementedCellServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedCellServiceServer struct {
 }
 
-func (UnimplementedOrchestratorServiceServer) GetCell(context.Context, *IdMessage) (*Cell, error) {
+func (UnimplementedCellServiceServer) Status(context.Context, *emptypb.Empty) (*ServerHealthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
+}
+func (UnimplementedCellServiceServer) GetCell(context.Context, *GetCellRequest) (*Cell, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCell not implemented")
 }
-func (UnimplementedOrchestratorServiceServer) mustEmbedUnimplementedOrchestratorServiceServer() {}
+func (UnimplementedCellServiceServer) CreateCell(context.Context, *CreateCellRequest) (*Cell, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateCell not implemented")
+}
+func (UnimplementedCellServiceServer) UpdateCell(context.Context, *UpdateCellRequest) (*Cell, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateCell not implemented")
+}
+func (UnimplementedCellServiceServer) mustEmbedUnimplementedCellServiceServer() {}
 
-// UnsafeOrchestratorServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to OrchestratorServiceServer will
+// UnsafeCellServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CellServiceServer will
 // result in compilation errors.
-type UnsafeOrchestratorServiceServer interface {
-	mustEmbedUnimplementedOrchestratorServiceServer()
+type UnsafeCellServiceServer interface {
+	mustEmbedUnimplementedCellServiceServer()
 }
 
-func RegisterOrchestratorServiceServer(s grpc.ServiceRegistrar, srv OrchestratorServiceServer) {
-	s.RegisterService(&OrchestratorService_ServiceDesc, srv)
+func RegisterCellServiceServer(s grpc.ServiceRegistrar, srv CellServiceServer) {
+	s.RegisterService(&CellService_ServiceDesc, srv)
 }
 
-func _OrchestratorService_GetCell_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(IdMessage)
+func _CellService_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OrchestratorServiceServer).GetCell(ctx, in)
+		return srv.(CellServiceServer).Status(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/OrchestratorService/GetCell",
+		FullMethod: "/CellService/Status",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OrchestratorServiceServer).GetCell(ctx, req.(*IdMessage))
+		return srv.(CellServiceServer).Status(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// OrchestratorService_ServiceDesc is the grpc.ServiceDesc for OrchestratorService service.
+func _CellService_GetCell_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCellRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CellServiceServer).GetCell(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CellService/GetCell",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CellServiceServer).GetCell(ctx, req.(*GetCellRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CellService_CreateCell_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateCellRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CellServiceServer).CreateCell(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CellService/CreateCell",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CellServiceServer).CreateCell(ctx, req.(*CreateCellRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CellService_UpdateCell_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateCellRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CellServiceServer).UpdateCell(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/CellService/UpdateCell",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CellServiceServer).UpdateCell(ctx, req.(*UpdateCellRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// CellService_ServiceDesc is the grpc.ServiceDesc for CellService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var OrchestratorService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "OrchestratorService",
-	HandlerType: (*OrchestratorServiceServer)(nil),
+var CellService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "CellService",
+	HandlerType: (*CellServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "Status",
+			Handler:    _CellService_Status_Handler,
+		},
+		{
 			MethodName: "GetCell",
-			Handler:    _OrchestratorService_GetCell_Handler,
+			Handler:    _CellService_GetCell_Handler,
+		},
+		{
+			MethodName: "CreateCell",
+			Handler:    _CellService_CreateCell_Handler,
+		},
+		{
+			MethodName: "UpdateCell",
+			Handler:    _CellService_UpdateCell_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

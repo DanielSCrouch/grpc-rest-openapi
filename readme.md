@@ -1,8 +1,10 @@
 # gRPC and REST API Server (OpenAPI) 
 
-This project demonstrates a RESTful HTTP API service over gRPC with OpenAPI Specification.
+This project demonstrates a RESTful HTTP API service over gRPC with an OpenAPI description.
 
 Examples of server-side and client-side implementations have been included for reference.
+
+<img src="assets/openapi-spec.png" alt="drawing" width="800"/>
 
 ---
 ## Usage
@@ -11,26 +13,46 @@ Start gRPC server. The terminal will block until the application is exited (Cntr
 
 ```bash
 go run cmd/server/main.go
-2022/04/02 16:25:32 SERVER_ADDR: 0.0.0.0
-2022/04/02 16:25:32 SERVER_PORT: 8080
-2022/04/02 16:25:32 starting gRPC server on 0.0.0.0:8080
+# 2022/04/02 22:46:13 SERVER_ADDR: 0.0.0.0
+# 2022/04/02 22:46:13 SERVER_PORT: 8081
+# 2022/04/02 22:46:13 PROXY_SERVER_PORT: 8080
+# 2022/04/02 22:46:13 starting reverse-proxy server on 0.0.0.0:8080
 ```
 
-Run the gRPC client with request for a `cell` item with key `foo-cell`
+Create a `cell` item with key `foo-cell`:
 
 ```bash 
-go run cmd/client/main.go get cell foo-cell
-connecting to server on 127.0.0.1:8080
-getting cells...
-Identity:{Identity:"foo-cell"}  Status:"foo-status"
+go run cmd/client/main.go create cell foo-cell     
+# connecting to server on 127.0.0.1:8081
+# creating cell...
+# identity:{uuid:"foo-cell"}  status:"offline"
 ```
 
-Alternatively, access the `cell` resource in a browser or with `curl` by navigating to:
+Get the `cell` from the Server
+
 ```bash
-curl http://127.0.0.1:8081/v1/cell/foo-cell
-# Output: 
-# {"Identity":{"Identity":"foo-cell"}, "Status":"foo-status"}
+go run cmd/client/main.go get cell foo-cell   
+# connecting to server on 127.0.0.1:8081
+# getting cell...
+# identity:{uuid:"foo-cell"}  status:"online"
 ```
+
+Update the `cell` to an `online` `status`:
+
+```bash
+go run cmd/client/main.go update cell foo-cell online
+# connecting to server on 127.0.0.1:8081
+# getting cell...
+# updating cell...
+# identity:{uuid:"foo-cell"}  status:"online"
+```
+
+Alternatively, access the `cell` resource via REST in a browser or with `curl`, for instance:
+```bash
+curl http://127.0.0.1:8080/v1/cells/foo-cell
+# {"identity":{"uuid":"foo-cell"}, "status":"online"}
+```
+
 
 ---
 ## Installation
@@ -164,3 +186,11 @@ protoc -I . --openapiv2_out ./openapiv2 --openapiv2_opt logtostderr=true service
 [OpenAPI Specification](https://swagger.io/specification/)
 
 [gRPC Introduction](https://grpc.io/docs/what-is-grpc/introduction/)
+
+---
+
+```bash
+protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative service.proto ;
+  protoc -I . --grpc-gateway_out . --grpc-gateway_opt logtostderr=true --grpc-gateway_opt paths=source_relative service.proto ;
+  protoc -I . --openapiv2_out ./openapiv2 --openapiv2_opt logtostderr=true service.proto
+```
