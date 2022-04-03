@@ -71,10 +71,10 @@ func (s *Server) Serve(ctx context.Context) {
 	go func() {
 		<-ctx.Done()
 		grpcServer.GracefulStop()
-		close(*s.serverClosedCh)
 		if err := listener.Close(); err != nil {
 			s.logger.Printf("failed to close %s: %v", address, err)
 		}
+		close(*s.serverClosedCh)
 	}()
 
 	err = grpcServer.Serve(listener)
@@ -87,7 +87,6 @@ func (s *Server) Serve(ctx context.Context) {
 // ServeReverseProxy - Starts the Reverse-proxy Server running on
 // local host. Blocks until context cancelled or fatal error
 func (s *Server) ServeReverseProxy(ctx context.Context) {
-	defer close(*s.serverClosedCh)
 
 	// Set the Server's address and port
 	grpcAddress := fmt.Sprintf("%s:%s", s.serverAddr, s.serverPort)
@@ -114,6 +113,7 @@ func (s *Server) ServeReverseProxy(ctx context.Context) {
 		if err := server.Shutdown(context.Background()); err != nil {
 			s.logger.Printf("failed to shutdown http gateway server: %v", err)
 		}
+		close(*s.serverClosedCh)
 	}()
 
 	// Start HTTP server (and proxy calls to gRPC server endpoint)

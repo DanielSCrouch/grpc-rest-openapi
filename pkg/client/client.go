@@ -14,7 +14,7 @@ import (
 )
 
 var grpcHeaders = metadata.New(map[string]string{
-	"Content-Type":         "application/json",
+	"Content-Type":         "application/grpc",
 	"grpc-accept-encoding": "identity,deflate,gzip",
 	"scheme":               "http",
 })
