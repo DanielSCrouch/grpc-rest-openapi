@@ -9,8 +9,15 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/fieldmaskpb"
 )
+
+var grpcHeaders = metadata.New(map[string]string{
+	"Content-Type":         "application/json",
+	"grpc-accept-encoding": "identity,deflate,gzip",
+	"scheme":               "http",
+})
 
 type Client struct {
 	ctx        context.Context
@@ -36,6 +43,7 @@ func (c *Client) connect(ctx context.Context) (connClient *api.CellServiceClient
 	var opts []grpc.DialOption
 	credentials := insecure.NewCredentials()
 	opts = append(opts, grpc.WithTransportCredentials(credentials))
+	ctx = metadata.NewOutgoingContext(ctx, grpcHeaders)
 	opts = append(opts, grpc.WithBlock())
 	ctx, close = context.WithTimeout(ctx, 5*time.Second)
 	grpcConn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%s", c.serverAddr, c.serverPort), opts...)
@@ -58,8 +66,9 @@ func (c *Client) CreateCell(ctx context.Context, cell *api.Cell) (resp *api.Cell
 	defer close()
 
 	c.logger.Println("creating cell...")
+	var headerResp metadata.MD
 	req := api.CreateCellRequest{Cell: cell}
-	resp, err = (*connClient).CreateCell(ctx, &req)
+	resp, err = (*connClient).CreateCell(ctx, &req, grpc.Header(&headerResp))
 	if err != nil {
 		return nil, err
 	}
