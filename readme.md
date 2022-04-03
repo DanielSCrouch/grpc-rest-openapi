@@ -49,10 +49,19 @@ go run cmd/client/main.go update cell foo-cell online
 
 Alternatively, access the `cell` resource via REST in a browser or with `curl`, for instance:
 ```bash
-curl http://127.0.0.1:8080/v1/cells/foo-cell
-# {"identity":{"uuid":"foo-cell"}, "status":"online"}
-```
+curl -X POST http://127.0.0.1:8080/v1/cells \
+   -H 'Content-Type: application/json' \
+   -d '{"identity":{"uuid":"foo-cell-2"}, "status":"offline"}'
+# {"identity":{"uuid":"foo-cell-2"}, "status":"offline"}
 
+curl -X PATCH http://127.0.0.1:8080/v1/cells/foo-cell-2 \
+   -H 'Content-Type: application/json' \
+   -d '{"identity":{"uuid":"foo-cell-2"}, "status":"online"}'
+# {"identity":{"uuid":"foo-cell-2"}, "status":"online"}
+
+curl http://127.0.0.1:8080/v1/cells/foo-cell-2
+# {"identity":{"uuid":"foo-cell-2"}, "status":"online"}
+```
 
 ---
 ## Installation
